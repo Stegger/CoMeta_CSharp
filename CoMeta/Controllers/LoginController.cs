@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CoMeta.Controllers
 {
-    [Authorize]
+    
     [Route("api/[controller]")]
     [ApiController]
     public class LoginController : ControllerBase

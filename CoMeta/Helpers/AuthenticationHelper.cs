@@ -37,7 +37,6 @@ namespace CoMeta.Helpers
                     if (computedHash[i] != storedHash[i]) return false;
                 }
             }
-
             return true;
         }
 
@@ -46,11 +45,15 @@ namespace CoMeta.Helpers
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Username)
+                new Claim(ClaimTypes.Name, user.Username),
+             
             };
-
-            if (user.IsAdmin)
-                claims.Add(new Claim(ClaimTypes.Role, "Administrator"));
+            
+            //I add all of the User's roles as Claims to the token:
+            foreach (var role in user.Roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role.Name));
+            }
 
             var token = new JwtSecurityToken(
                 new JwtHeader(new SigningCredentials(

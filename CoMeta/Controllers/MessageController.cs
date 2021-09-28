@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,7 @@ namespace CoMeta.Controllers
         }
 
         // GET: api/Message
-        [Authorize]
+        [Authorize(Roles = "Administrator")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Message>>> GetMessages()
         {
@@ -37,12 +38,16 @@ namespace CoMeta.Controllers
         public async Task<ActionResult<Message>> GetMessage(long id)
         {
             var message = await _context.Messages.FindAsync(id);
-            
             if (message == null)
             {
                 return NotFound();
             }
-
+            string userName = HttpContext.User.Identity.Name;
+            //The user is not allowed to access messages they dit not send or receive:
+            if (message.Sender.Username != userName || message.Receiver.Username != userName)
+            {
+                return Forbid();
+            }
             return message;
         }
 
@@ -79,9 +84,15 @@ namespace CoMeta.Controllers
 
         // POST: api/Message
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Message>> PostMessage(Message message)
         {
+            var userName = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+
+            if (!message.Sender.Username.Equals(userName))
+                return Forbid();
+            
             _context.Messages.Add(message);
             await _context.SaveChangesAsync();
 

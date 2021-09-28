@@ -44,7 +44,7 @@ namespace CoMeta
             Byte[] secretBytes = new byte[40];
             Random rand = new Random();
             rand.NextBytes(secretBytes);
-            
+
             //Add JWT authentication
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
@@ -60,17 +60,17 @@ namespace CoMeta
                     ClockSkew = TimeSpan.FromMinutes(5) //5 minute tolerance for the expiration date
                 };
             });
-
-
+            
+            
+            
             services.AddDbContext<CoMetaContext>(opt => opt.UseInMemoryDatabase("CoMetaList"));
 
             services.AddScoped<IRepository<User>, UserRepository>();
             services.AddScoped<IRepository<Message>, MessageRepository>();
+            services.AddScoped<IRepository<Role>, RoleRepository>();
 
             services.AddSingleton<IAuthenticationHelper>(new AuthenticationHelper(secretBytes));
 
-            
-            
             services.AddControllers();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "CoMeta", Version = "v1" }); });
         }
@@ -89,7 +89,7 @@ namespace CoMeta
 
             app.UseRouting();
 
-
+            //UseAuthentication must be called AFTER UseRouting, and BEFORE UseEndpoints:
             app.UseAuthentication();
 
             app.UseAuthorization();

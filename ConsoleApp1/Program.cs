@@ -20,10 +20,27 @@ namespace ConsoleApp1
             Random rand = new Random();
             rand.NextBytes(secretBytes);
             helper = new AuthenticationHelper(secretBytes);
-            
-            
-            
 
+            string password = "Pa$$w0rd";
+            byte[] passwordHash;
+            byte[] salt;
+            helper.CreatePasswordHash(password, out passwordHash, out salt);
+
+            string pwHash = BitConverter.ToString(passwordHash);
+            string pwSalt = BitConverter.ToString(salt);
+            
+            Console.WriteLine("Hash: " + pwHash);
+            Console.WriteLine("Salt: " + pwSalt);
+            
+            if (helper.VerifyPasswordHash(password, passwordHash, salt))
+            {
+                Console.WriteLine("We have a match");
+            }
+            else
+            {
+                Console.WriteLine("It doesn't match");
+            }
+            
         }
 
         public static void FunWithAsyncEncryption()
