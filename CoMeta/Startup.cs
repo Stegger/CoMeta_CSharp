@@ -46,6 +46,7 @@ namespace CoMeta
             rand.NextBytes(secretBytes);
             
             //Add JWT authentication
+            //The settings below match the settings when we create our TOKEN:
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters()
@@ -67,8 +68,9 @@ namespace CoMeta
             services.AddScoped<IRepository<Message>, MessageRepository>();
             services.AddScoped<IRepository<Role>, RoleRepository>();
 
-            //I add the Authentication helper as a Singleton that uses the SECRET symmetric key:
+            //I add the Authentication helper as a SINGLETON that uses the SECRET symmetric key:
             //The key is used for digitally signing the JWT tokens - keeping them secure from tampering
+            //The SINGLETON is to ensure that we are using the same authenticator, with the same SECRET:
             services.AddSingleton<IAuthenticationHelper>(new AuthenticationHelper(secretBytes));
 
             services.AddControllers();
