@@ -26,7 +26,7 @@ namespace CoMeta
         {
             Configuration = configuration;
         }
-        
+
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
@@ -44,7 +44,7 @@ namespace CoMeta
             Byte[] secretBytes = new byte[40];
             Random rand = new Random();
             rand.NextBytes(secretBytes);
-            
+
             //Add JWT authentication
             //The settings below match the settings when we create our TOKEN:
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
@@ -61,7 +61,7 @@ namespace CoMeta
                     ClockSkew = TimeSpan.FromMinutes(5) //5 minute tolerance for the expiration date
                 };
             });
-            
+
             services.AddDbContext<CoMetaContext>(opt => opt.UseInMemoryDatabase("CoMetaList"));
 
             services.AddScoped<IRepository<User>, UserRepository>();
