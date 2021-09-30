@@ -47,7 +47,7 @@ namespace CoMeta.Controllers
             List<Role> roles = new List<Role>();
             
             //I add the User role as a default for any new user:
-            roles.Add(_roleRepo.GetAll().FirstOrDefault(r => r.Name.Equals(RoleTypes.User.ToString())));
+            roles.Add(_roleRepo.GetAll().FirstOrDefault(r => r.Name.Equals("User")));
 
             user = new User()
             {

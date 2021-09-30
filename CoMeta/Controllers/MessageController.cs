@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace CoMeta.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MessageController : ControllerBase
@@ -21,7 +23,6 @@ namespace CoMeta.Controllers
         public MessageController(CoMetaContext context)
         {
             _context = context;
-            
         }
 
         // GET: api/Message
@@ -42,12 +43,17 @@ namespace CoMeta.Controllers
             {
                 return NotFound();
             }
+            
             string userName = HttpContext.User.Identity.Name;
+            
+            Debug.WriteLine(HttpContext);
+            
             //The user is not allowed to access messages they dit not send or receive:
             if (message.Sender.Username != userName || message.Receiver.Username != userName)
             {
                 return Forbid();
             }
+            
             return message;
         }
 
@@ -62,7 +68,7 @@ namespace CoMeta.Controllers
             }
 
             _context.Entry(message).State = EntityState.Modified;
-
+            
             try
             {
                 await _context.SaveChangesAsync();
@@ -78,7 +84,6 @@ namespace CoMeta.Controllers
                     throw;
                 }
             }
-
             return NoContent();
         }
 
@@ -86,7 +91,7 @@ namespace CoMeta.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [Authorize]
         [HttpPost]
-        public async Task<ActionResult<Message>> PostMessage(Message message)
+        public async Task<ActionResult<Message>> PostMessage([FromBody] Message message)
         {
             var userName = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
 

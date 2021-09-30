@@ -46,7 +46,8 @@ namespace CoMeta.Helpers
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
-             
+                new Claim(ClaimTypes.Sid, user.Id.ToString()),
+                new Claim(ClaimTypes.DateOfBirth, new DateTime(1983, 9,30).ToString())
             };
             
             //I add all of the User's roles as Claims to the token:

@@ -26,7 +26,7 @@ namespace CoMeta
         {
             Configuration = configuration;
         }
-
+        
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
@@ -44,7 +44,7 @@ namespace CoMeta
             Byte[] secretBytes = new byte[40];
             Random rand = new Random();
             rand.NextBytes(secretBytes);
-
+            
             //Add JWT authentication
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
@@ -61,14 +61,14 @@ namespace CoMeta
                 };
             });
             
-            
-            
             services.AddDbContext<CoMetaContext>(opt => opt.UseInMemoryDatabase("CoMetaList"));
 
             services.AddScoped<IRepository<User>, UserRepository>();
             services.AddScoped<IRepository<Message>, MessageRepository>();
             services.AddScoped<IRepository<Role>, RoleRepository>();
 
+            //I add the Authentication helper as a Singleton that uses the SECRET symmetric key:
+            //The key is used for digitally signing the JWT tokens - keeping them secure from tampering
             services.AddSingleton<IAuthenticationHelper>(new AuthenticationHelper(secretBytes));
 
             services.AddControllers();
@@ -91,7 +91,6 @@ namespace CoMeta
 
             //UseAuthentication must be called AFTER UseRouting, and BEFORE UseEndpoints:
             app.UseAuthentication();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
