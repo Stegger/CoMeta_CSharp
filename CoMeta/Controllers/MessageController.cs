@@ -49,10 +49,10 @@ namespace CoMeta.Controllers
             Debug.WriteLine(HttpContext);
             
             //The user is not allowed to access messages they dit not send or receive:
-            if (message.Sender.Username != userName || message.Receiver.Username != userName)
-            {
-                return Forbid();
-            }
+            // if (message.Sender.Username != userName || message.Receiver.Username != userName)
+            // {
+            //     return Forbid();
+            // }
             
             return message;
         }
@@ -95,8 +95,9 @@ namespace CoMeta.Controllers
         {
             var userName = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
 
-            if (!message.Sender.Username.Equals(userName))
-                return Forbid();
+            /*if (!message.Sender.Username.Equals(userName))
+                */
+            //    return Forbid();
             
             _context.Messages.Add(message);
             await _context.SaveChangesAsync();

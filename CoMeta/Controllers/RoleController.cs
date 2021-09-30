@@ -77,7 +77,7 @@ namespace CoMeta.Controllers
 
         // POST: api/Role
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [AllowAnonymous]
+        [AllowAnonymous] //Temporary bypassing authorization for Role creation (Will seed it in the future).
         [HttpPost]
         public async Task<ActionResult<Role>> PostRole(Role role)
         {

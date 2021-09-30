@@ -6,9 +6,4 @@
         public string Name { get; set; }
     }
 
-    public enum RoleTypes
-    {
-        User = 1,
-        Administrator = 2
-    }
 }
