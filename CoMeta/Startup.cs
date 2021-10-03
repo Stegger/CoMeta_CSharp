@@ -63,6 +63,7 @@ namespace CoMeta
             });
 
             services.AddDbContext<CoMetaContext>(opt => opt.UseInMemoryDatabase("CoMetaList"));
+            services.AddTransient<IDbInitializer, InMemoryInitializer>();
 
             services.AddScoped<IRepository<User>, UserRepository>();
             services.AddScoped<IRepository<Message>, MessageRepository>();
@@ -80,6 +81,16 @@ namespace CoMeta
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // Initialize the database.
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                // Initialize the database
+                var services = scope.ServiceProvider;
+                var dbContext = services.GetService<CoMetaContext>();
+                var dbInitializer = services.GetService<IDbInitializer>();
+                dbInitializer.Initialize(dbContext);
+            }
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

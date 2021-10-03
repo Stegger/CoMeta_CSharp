@@ -24,6 +24,7 @@ namespace CoMeta.Controllers
         }
 
         // GET: api/Role
+        [AllowAnonymous] //TODO Remove when moving out of debug
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Role>>> GetRoles()
         {

@@ -42,17 +42,14 @@ namespace CoMeta.Controllers
             byte[] salt;
             byte[] passwordHash;
             _authentication.CreatePasswordHash(model.Password, out passwordHash, out salt);
-
-            //TODO Fix this by adding a RoleRepository and fetching the Role from there.. Putting in a relationship.
-            List<Role> roles = new List<Role>();
             
             //I add the User role as a default for any new user:
-            roles.Add(_roleRepo.GetAll().FirstOrDefault(r => r.Name.Equals("User")));
+            Role r = _roleRepo.GetAll().FirstOrDefault(r => r.Name.Equals("User"));
 
             user = new User()
             {
                 Username = model.Username,
-                Roles = roles,
+                Role = r.Name,
                 PasswordHash = passwordHash,
                 PasswordSalt = salt
             };

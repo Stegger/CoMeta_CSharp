@@ -50,10 +50,10 @@ namespace CoMeta.Helpers
             };
             
             //I add all of the User's roles as Claims to the token:
-            foreach (var role in user.Roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role.Name));
-            }
+            
+            
+            claims.Add(new Claim(ClaimTypes.Role, user.Role));
+            
 
             var token = new JwtSecurityToken(
                 new JwtHeader(new SigningCredentials(
