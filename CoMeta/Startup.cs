@@ -39,12 +39,14 @@ namespace CoMeta
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            Byte[] secretBytes = new byte[40];
             // Create a byte array with random values. This byte array is used
             // to generate a key for signing JWT tokens.
-            Byte[] secretBytes = new byte[40];
-            Random rand = new Random();
-            rand.NextBytes(secretBytes);
-
+            using (var rngCsp = new System.Security.Cryptography.RNGCryptoServiceProvider())
+            {
+                rngCsp.GetBytes(secretBytes);
+            }
+            
             //Add JWT authentication
             //The settings below match the settings when we create our TOKEN:
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
