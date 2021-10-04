@@ -15,8 +15,8 @@ namespace ConsoleApp1
         {
             //HashPasswordExample("P@$$WORD");
             //funWithTokens();
-            //funWithEncryption("Hi Bob, it's Alice (h)");
-            FunWithAsyncEncryption();
+            funWithEncryption("Hi Bob, it's Alice (h)");
+            //FunWithAsyncEncryption();
         }
 
         private static void funWithTokens()
@@ -98,7 +98,6 @@ namespace ConsoleApp1
 
             // Create a TripleDESCryptoServiceProvider object.
             TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
-
             try
             {
                 Console.WriteLine("Creating a key with PasswordDeriveBytes...");
@@ -110,7 +109,7 @@ namespace ConsoleApp1
                 // Create the key and set it to the Key property
                 // of the TripleDESCryptoServiceProvider object.
                 tdes.Key = pdb.CryptDeriveKey("TripleDES", "SHA512", 0, tdes.IV);
-
+                
                 Console.WriteLine("Operation complete.");
                 byte[] encrypted;
 
@@ -162,6 +161,8 @@ namespace ConsoleApp1
 
                 // Clear the key.
                 tdes.Clear();
+        
+                
             }
 
             Console.ReadLine();
