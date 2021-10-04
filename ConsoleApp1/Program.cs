@@ -15,7 +15,8 @@ namespace ConsoleApp1
         {
             //HashPasswordExample("P@$$WORD");
             //funWithTokens();
-            funWithEncryption("Hi Bob, it's Alice (h)");
+            //funWithEncryption("Hi Bob, it's Alice (h)");
+            FunWithAsyncEncryption();
         }
 
         private static void funWithTokens()
@@ -64,6 +65,7 @@ namespace ConsoleApp1
             // Public key file
             const string PubKeyFile = @"c:\CoMeta\encrypt\rsaPublicKey.txt";
 
+            
             // Key container name for
             // private/public key value pair.
             const string keyName = "Key02";
@@ -79,7 +81,8 @@ namespace ConsoleApp1
 
             Console.Out.WriteLine(strKey);
 
-            
+            byte[] privKey = rsa.ExportRSAPrivateKey();
+            Console.WriteLine("Priv key: " + BitConverter.ToString(privKey));
             
             Directory.CreateDirectory(EncrFolder);
             StreamWriter sw = new StreamWriter(PubKeyFile, false);
