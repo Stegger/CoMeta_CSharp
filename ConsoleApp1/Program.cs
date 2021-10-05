@@ -15,8 +15,8 @@ namespace ConsoleApp1
         {
             //HashPasswordExample("P@$$WORD");
             //funWithTokens();
-            funWithEncryption("Hi Bob, it's Alice (h)");
-            //FunWithAsyncEncryption();
+            //funWithEncryption("Hi Bob, it's Alice (h)");
+            FunWithAsyncEncryption();
         }
 
         private static void funWithTokens()
@@ -83,12 +83,9 @@ namespace ConsoleApp1
                 strKey = "Key: " + cspp.KeyContainerName + " - Full Key Pair";
 
             Console.Out.WriteLine(strKey);
-
-                        
+       
             byte[] privKey = rsa.ExportRSAPrivateKey();
             byte[] pubKey = rsa.ExportRSAPublicKey();
-            
-            
             
             Console.WriteLine("Priv key: " + BitConverter.ToString(privKey));
             Console.WriteLine("Pub  key: " + BitConverter.ToString(pubKey));
@@ -105,7 +102,6 @@ namespace ConsoleApp1
             Console.WriteLine("Encrypted data:");
             Console.WriteLine(enc);
 
-
             cspp = new CspParameters();
             cspp.KeyContainerName = keyName;
             rsa = new RSACryptoServiceProvider(cspp);
@@ -115,8 +111,6 @@ namespace ConsoleApp1
             Console.WriteLine("Decrypted data (With key container):");
             Console.WriteLine(clear);
 
-            
-            
             rsa = new RSACryptoServiceProvider();
             int bytesRead;
             rsa.ImportRSAPublicKey(pubKey, out bytesRead);
@@ -127,7 +121,6 @@ namespace ConsoleApp1
             Console.WriteLine("Decrypted data (With byte[] keys):");
             Console.WriteLine(clear2);
 
-            
             Directory.CreateDirectory(EncrFolder);
             StreamWriter sw = new StreamWriter(PubKeyFile, false);
             sw.Write(rsa.ToXmlString(false));
@@ -141,7 +134,7 @@ namespace ConsoleApp1
             byte[] salt = CreateRandomSalt(512 / 8);
 
             // Create a TripleDESCryptoServiceProvider object.
-            TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
+            //TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
             AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
             
             try
@@ -150,11 +143,10 @@ namespace ConsoleApp1
 
                 // Create a PasswordDeriveBytes object and then create
                 // a TripleDES key from the password and salt.
-                PasswordDeriveBytes pdb = new PasswordDeriveBytes(pwd, salt);
-
+                //PasswordDeriveBytes pdb = new PasswordDeriveBytes(pwd, salt);
                 // Create the key and set it to the Key property
                 // of the TripleDESCryptoServiceProvider object.
-                tdes.Key = pdb.CryptDeriveKey("TripleDES", "SHA512", 0, tdes.IV);
+                //tdes.Key = pdb.CryptDeriveKey("TripleDES", "SHA512", 0, tdes.IV);
                 
                 Console.WriteLine("Operation complete.");
                 byte[] encrypted;
@@ -206,8 +198,8 @@ namespace ConsoleApp1
                 ClearBytes(salt);
 
                 // Clear the key.
-                tdes.Clear();
-        
+                //tdes.Clear();
+                aes.Clear();
                 
             }
 
