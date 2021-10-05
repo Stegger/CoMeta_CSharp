@@ -15,8 +15,8 @@ namespace ConsoleApp1
         {
             //HashPasswordExample("P@$$WORD");
             //funWithTokens();
-            //funWithEncryption("Hi Bob, it's Alice (h)");
-            FunWithAsyncEncryption();
+            funWithEncryption("Hi Bob, it's Alice (h)");
+            //FunWithAsyncEncryption();
         }
 
         private static void funWithTokens()
@@ -84,8 +84,11 @@ namespace ConsoleApp1
 
             Console.Out.WriteLine(strKey);
 
+                        
             byte[] privKey = rsa.ExportRSAPrivateKey();
             byte[] pubKey = rsa.ExportRSAPublicKey();
+            
+            
             
             Console.WriteLine("Priv key: " + BitConverter.ToString(privKey));
             Console.WriteLine("Pub  key: " + BitConverter.ToString(pubKey));
@@ -102,10 +105,28 @@ namespace ConsoleApp1
             Console.WriteLine("Encrypted data:");
             Console.WriteLine(enc);
 
+
+            cspp = new CspParameters();
+            cspp.KeyContainerName = keyName;
+            rsa = new RSACryptoServiceProvider(cspp);
+            
             byte[] clearBytes = rsa.Decrypt(enccryptedBytes, RSAEncryptionPadding.Pkcs1);
             string clear = Encoding.UTF8.GetString(clearBytes);
-            Console.WriteLine("Decrypted data:");
+            Console.WriteLine("Decrypted data (With key container):");
             Console.WriteLine(clear);
+
+            
+            
+            rsa = new RSACryptoServiceProvider();
+            int bytesRead;
+            rsa.ImportRSAPublicKey(pubKey, out bytesRead);
+            int bytesRead2;
+            rsa.ImportRSAPrivateKey(privKey, out bytesRead2);
+            byte[] cleBytes2 = rsa.Decrypt(enccryptedBytes, RSAEncryptionPadding.Pkcs1);
+            string clear2 = Encoding.UTF8.GetString(cleBytes2);
+            Console.WriteLine("Decrypted data (With byte[] keys):");
+            Console.WriteLine(clear2);
+
             
             Directory.CreateDirectory(EncrFolder);
             StreamWriter sw = new StreamWriter(PubKeyFile, false);
@@ -121,6 +142,8 @@ namespace ConsoleApp1
 
             // Create a TripleDESCryptoServiceProvider object.
             TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
+            AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
+            
             try
             {
                 Console.WriteLine("Creating a key with PasswordDeriveBytes...");
@@ -136,7 +159,7 @@ namespace ConsoleApp1
                 Console.WriteLine("Operation complete.");
                 byte[] encrypted;
 
-                ICryptoTransform encryptor = tdes.CreateEncryptor();
+                ICryptoTransform encryptor = aes.CreateEncryptor();
                 // Create the streams used for encryption.
                 using (MemoryStream msEncrypt = new MemoryStream())
                 {
@@ -158,7 +181,7 @@ namespace ConsoleApp1
 
                 string clearText;
                 //Decryption
-                ICryptoTransform decrypter = tdes.CreateDecryptor();
+                ICryptoTransform decrypter = aes.CreateDecryptor();
                 using (MemoryStream msDecrypt = new MemoryStream(encrypted)) //Remember that encrypted is a byte[]
                 {
                     using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decrypter, CryptoStreamMode.Read))
