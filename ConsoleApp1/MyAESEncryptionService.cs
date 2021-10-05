@@ -77,12 +77,12 @@ namespace ConsoleApp1
             return clearText;
         }
 
-        public string getKey()
+        public string GetKey()
         {
             return Convert.ToBase64String(_key);
         }
 
-        public string getIV()
+        public string GetIV()
         {
             return Convert.ToBase64String(_iv);
         }

@@ -13,7 +13,43 @@ namespace ConsoleApp1
 
         static void Main(string[] args)
         {
+            
+            //PlayingWithMyRSAEncryptionService();
+            //playingWithMyAESService();
+            //HashPasswordExample("P@$$WORD");
+            //funWithTokens();
+            //funWithEncryption("Hi Bob, it's Alice (h)");
+            //FunWithAsyncEncryption();
+        }
+
+        private static void PlayingWithMyRSAEncryptionService()
+        {
+            MyRSAEncryptionService encryptionServiceAlice = new MyRSAEncryptionService();
+
+            string alicesPublicKey = encryptionServiceAlice.GetPublicRsaParameters();
+            Console.WriteLine("Alice public key: " + alicesPublicKey);
+
+            string alicesPublicAndPrivateKey = encryptionServiceAlice.GetPublicAndPrivateRsaParameters();
+            Console.WriteLine("Alices public and private key: " + alicesPublicAndPrivateKey);
+
+            MyRSAEncryptionService encryptionServiceBob = new MyRSAEncryptionService(alicesPublicKey);
+
+            string bobsMessageToAlice = "Hi Alice. I think you are really nice";
+
+            //I encrypt the message from Bob with BOB's service using ALICE's PUBLIC KEY:
+            byte[] secret = encryptionServiceBob.encryptMessage(bobsMessageToAlice);
+
+            //I decrypt the message from Bob with ALICE's service using ALICE's PRIVATE KEY:
+            string alicesMessageFromBob = encryptionServiceAlice.decryptMessage(secret);
+
+            //I print out the decrypted text:
+            Console.WriteLine(alicesMessageFromBob);
+        }
+
+        private static void playingWithMyAESService()
+        {
             //Create the encryption service using the key and IV:
+            //Here I am using the key and IV taken from FaceBook:
             string aKey = "glZXcwfK2eYmfb8drr1ObHn5hXUvl2kXBrOmbvxf8Ow=";
             string aIv = "tx8FgtXX8jCYKQDxBICUlw==";
             MyAESEncryptionService encryptionService = new MyAESEncryptionService(aKey, aIv);
@@ -24,7 +60,7 @@ namespace ConsoleApp1
             byte[] secret = encryptionService.EncryptMessage(message);
             //Base64 encode for transfer (URL safe):
             string base64secret = Convert.ToBase64String(secret);
-            
+
             Console.WriteLine(base64secret);
 
             //Receiving a secret:
@@ -35,11 +71,6 @@ namespace ConsoleApp1
             string messageTwo = encryptionService.DecryptMessage(byteSecret);
             //Print result:
             Console.WriteLine(messageTwo);
-
-            //HashPasswordExample("P@$$WORD");
-            //funWithTokens();
-            //funWithEncryption("Hi Bob, it's Alice (h)");
-            //FunWithAsyncEncryption();
         }
 
         private static void funWithTokens()
