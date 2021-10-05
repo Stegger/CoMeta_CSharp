@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Security.Cryptography;
 
 namespace ConsoleApp1
@@ -8,6 +9,13 @@ namespace ConsoleApp1
         private byte[] _key;
         private byte[] _iv;
         private AesCryptoServiceProvider _aes;
+
+        public MyAESEncryptionService()
+        {
+            _aes = new AesCryptoServiceProvider();
+            _key = _aes.Key;
+            _iv = _aes.IV;
+        }
 
         public MyAESEncryptionService(string key, string iv)
         {
@@ -27,14 +35,35 @@ namespace ConsoleApp1
             _aes.IV = _iv;
         }
 
-        
-        
+        public byte[] EncryptMessage(string message)
+        {
+            byte[] encrypted;
+
+            ICryptoTransform encryptor = _aes.CreateEncryptor();
+            // Create the streams used for encryption.
+            using (MemoryStream msEncrypt = new MemoryStream())
+            {
+                using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                {
+                    using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                    {
+                        //Write all data to the stream.
+                        swEncrypt.Write(message);
+                    }
+
+                    encrypted = msEncrypt.ToArray();
+                }
+            }
+
+            return encrypted;
+        }
+
         public string DecryptMessage(byte[] encryptedMessage)
         {
             string clearText;
             //Decryption
-            ICryptoTransform decrypter = aes.CreateDecryptor();
-            using (MemoryStream msDecrypt = new MemoryStream(encrypted)) //Remember that encrypted is a byte[]
+            ICryptoTransform decrypter = _aes.CreateDecryptor();
+            using (MemoryStream msDecrypt = new MemoryStream(encryptedMessage)) //Remember that encrypted is a byte[]
             {
                 using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decrypter, CryptoStreamMode.Read))
                 {
@@ -44,7 +73,19 @@ namespace ConsoleApp1
                     }
                 }
             }
-            return "";
+
+            return clearText;
         }
+
+        public string getKey()
+        {
+            return Convert.ToBase64String(_key);
+        }
+
+        public string getIV()
+        {
+            return Convert.ToBase64String(_iv);
+        }
+        
     }
 }
