@@ -76,7 +76,7 @@ namespace ConsoleApp1
         /// <returns>The public key as an XML string</returns>
         public string GetPublicRsaParameters()
         {
-            return _rsa.ToXmlString(false);
+            return _rsa.ToXmlString(false); //The false parameter excludes the private key
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace ConsoleApp1
         /// <returns>The public and private keys as an XML string</returns>
         public string GetPublicAndPrivateRsaParameters()
         {
-            return _rsa.ToXmlString(true);
+            return _rsa.ToXmlString(true); //The true parameter includes the private key
         }
     }
 }
