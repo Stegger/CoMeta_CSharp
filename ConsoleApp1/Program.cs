@@ -15,8 +15,8 @@ namespace ConsoleApp1
         {
             //HashPasswordExample("P@$$WORD");
             //funWithTokens();
-            funWithEncryption("Hi Bob, it's Alice (h)");
-            //FunWithAsyncEncryption();
+            //funWithEncryption("Hi Bob, it's Alice (h)");
+            FunWithAsyncEncryption();
         }
 
         private static void funWithTokens()
@@ -71,9 +71,12 @@ namespace ConsoleApp1
             const string keyName = "Key02";
             // Stores a key pair in the key container.
             cspp.KeyContainerName = keyName;
+            
+            
             rsa = new RSACryptoServiceProvider(cspp);
             rsa.PersistKeyInCsp = true;
             string strKey = "";
+            
             if (rsa.PublicOnly == true)
                 strKey = "Key: " + cspp.KeyContainerName + " - Public Only";
             else
@@ -82,7 +85,27 @@ namespace ConsoleApp1
             Console.Out.WriteLine(strKey);
 
             byte[] privKey = rsa.ExportRSAPrivateKey();
+            byte[] pubKey = rsa.ExportRSAPublicKey();
+            
             Console.WriteLine("Priv key: " + BitConverter.ToString(privKey));
+            Console.WriteLine("Pub  key: " + BitConverter.ToString(pubKey));
+
+            Console.WriteLine("Hit enter to continue:");
+            Console.ReadLine();
+            Console.WriteLine("Fun with RSA encryption:");
+            string text = "This is a secret";
+            byte[] byteText = Encoding.UTF8.GetBytes(text);
+
+            byte[] enccryptedBytes = rsa.Encrypt(byteText, RSAEncryptionPadding.Pkcs1);
+
+            string enc = BitConverter.ToString(enccryptedBytes);
+            Console.WriteLine("Encrypted data:");
+            Console.WriteLine(enc);
+
+            byte[] clearBytes = rsa.Decrypt(enccryptedBytes, RSAEncryptionPadding.Pkcs1);
+            string clear = Encoding.UTF8.GetString(clearBytes);
+            Console.WriteLine("Decrypted data:");
+            Console.WriteLine(clear);
             
             Directory.CreateDirectory(EncrFolder);
             StreamWriter sw = new StreamWriter(PubKeyFile, false);
