@@ -13,10 +13,33 @@ namespace ConsoleApp1
 
         static void Main(string[] args)
         {
+            //Create the encryption service using the key and IV:
+            string aKey = "glZXcwfK2eYmfb8drr1ObHn5hXUvl2kXBrOmbvxf8Ow=";
+            string aIv = "tx8FgtXX8jCYKQDxBICUlw==";
+            MyAESEncryptionService encryptionService = new MyAESEncryptionService(aKey, aIv);
+
+            //Create a text to encrypt:
+            String message = "Jeg mener det! I har fri";
+            //Encrypt the secret:
+            byte[] secret = encryptionService.EncryptMessage(message);
+            //Base64 encode for transfer (URL safe):
+            string base64secret = Convert.ToBase64String(secret);
+            
+            Console.WriteLine(base64secret);
+
+            //Receiving a secret:
+            string aSecret = "omXYIcSYS4p56+WHEP3Y+j//n5oyO8/OqHEkeTG9Te8=";
+            //Base64 decode:
+            byte[] byteSecret = Convert.FromBase64String(aSecret);
+            //Decrypt:
+            string messageTwo = encryptionService.DecryptMessage(byteSecret);
+            //Print result:
+            Console.WriteLine(messageTwo);
+
             //HashPasswordExample("P@$$WORD");
             //funWithTokens();
             //funWithEncryption("Hi Bob, it's Alice (h)");
-            FunWithAsyncEncryption();
+            //FunWithAsyncEncryption();
         }
 
         private static void funWithTokens()
