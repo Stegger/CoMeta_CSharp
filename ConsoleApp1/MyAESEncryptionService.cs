@@ -27,9 +27,23 @@ namespace ConsoleApp1
             _aes.IV = _iv;
         }
 
-        public string DecryptMessage(string encryptedMessage)
+        
+        
+        public string DecryptMessage(byte[] encryptedMessage)
         {
-            //TODO Implement this
+            string clearText;
+            //Decryption
+            ICryptoTransform decrypter = aes.CreateDecryptor();
+            using (MemoryStream msDecrypt = new MemoryStream(encrypted)) //Remember that encrypted is a byte[]
+            {
+                using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decrypter, CryptoStreamMode.Read))
+                {
+                    using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                    {
+                        clearText = srDecrypt.ReadToEnd();
+                    }
+                }
+            }
             return "";
         }
     }
