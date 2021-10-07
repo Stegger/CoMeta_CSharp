@@ -17,13 +17,13 @@ namespace ConsoleApp1
 
         static void Main(string[] args)
         {
-            
+            WorkingBackwards();
             //FunWithAESandKeys();
             //PlayingWithMyRSAEncryptionService();
             //playingWithMyAESService();
             //HashPasswordExample("P@$$WORD");
             //funWithTokens();
-            funWithEncryption("Hi Bob, it's Alice (h)");
+            //funWithEncryption("Hi Bob, it's Alice (h)");
             //FunWithAsyncEncryption();
         }
 
@@ -31,25 +31,44 @@ namespace ConsoleApp1
         {
             PasswordToKeyService keyService = new PasswordToKeyService();
 
-            String password = "Password 123"; //This is User generated Input (Should never be stored)!
+            String password = "Password123"; //This is User generated Input (Should never be stored)!
             //The salt is created at User Registration and is stored on the server:
-            byte[] salt;
+            byte[] salt = CreateRandomSalt(5);
             byte[] key = keyService.GetKey(password, out salt, 256);
 
             Console.WriteLine("Key: " + Convert.ToBase64String(key));
             Console.WriteLine("Salt: " + Convert.ToBase64String(salt));
 
-            byte[] iv = Convert.FromBase64String("7y7+++u7pV5aIOxJfPCLFA==");
-
-            MyAESEncryptionService aesEncryptionService = new MyAESEncryptionService(key, iv);
-
-            String secretText = "Hello world";
-
+            byte[] iv;
+            MyAESEncryptionService aesEncryptionService = new MyAESEncryptionService(key, out iv);
+            Console.WriteLine("IV: " + Convert.ToBase64String(iv));
+            
+            String secretText = "This have to work!";
             byte[] result = aesEncryptionService.EncryptMessage(secretText);
+            
+            Console.WriteLine("Encrypted text: " + Convert.ToBase64String(result));
 
-            Console.WriteLine("Enc text: " + Convert.ToBase64String(result));
+            String decrypted = aesEncryptionService.DecryptMessage(result);
+            Console.WriteLine("Original: " + decrypted);
+            
         }
 
+        public static void WorkingBackwards()
+        {
+            string password = "Password123";
+            string salt = "8Eye+X/wPcdTUOhOr2hCbKfPeLnVGAJNzNZKMoLYLD2pGIC4BfADlNMkh0B41JqQG3LTYxIgzfLwGYOjN1+Wkg7Bpm4uwx2eBw7aFUQ8vpx1rQp40FTLwsCTbq2XOmGhgcTl+5lVhkHQrweEYsrzfn5lVY7bOEQcjc480iq1a+BLUn5Mwji2XSwql7FlAxGWzkGXVl9Gq0eREIcSOggzZAe5dK09nUmfAZJ5Wq5h9jOItk3v7l5YE0jEDZByn4flzF0Ub8cYRpso3dG2UeT+/zfBddhkYv2Fx/ZTohAWP1i7jGDYFrctjpAJBHxfd6y8azdrfJ+kHvZ7eLSU1LHz0Q==";
+            //Above will generate the key ^
+            byte[] key = new PasswordToKeyService().GetKey(password, Convert.FromBase64String(salt), 256);
+            
+            string iv = "wfLfqUKDlZGQ90Rhl7zv/w==";
+            MyAESEncryptionService encryptionService = new MyAESEncryptionService(key, Convert.FromBase64String(iv));
+            
+            string encryptedText = "wGMoD04DsIFA9fWzRmIDihNeEx4qy6UacEG/+KCcub0=";
+            byte[] byteEncryptedText = Convert.FromBase64String(encryptedText);
+            string clearText = encryptionService.DecryptMessage(byteEncryptedText);
+            Console.WriteLine("The message is: " + clearText);
+        }
+        
         private static void PlayingWithMyRSAEncryptionService()
         {
             MyRSAEncryptionService encryptionServiceAlice = new MyRSAEncryptionService();
@@ -83,7 +102,7 @@ namespace ConsoleApp1
             MyAESEncryptionService encryptionService = new MyAESEncryptionService(aKey, aIv);
 
             //Create a text to encrypt:
-            String message = "Jeg mener det! I har fri";
+            String message = "This is a new secret text";
             //Encrypt the secret:
             byte[] secret = encryptionService.EncryptMessage(message);
             //Base64 encode for transfer (URL safe):
@@ -92,7 +111,7 @@ namespace ConsoleApp1
             Console.WriteLine(base64secret);
 
             //Receiving a secret:
-            string aSecret = "omXYIcSYS4p56+WHEP3Y+j//n5oyO8/OqHEkeTG9Te8=";
+            string aSecret = "8XBmpevEDM5fTwvk+zoi+g==";
             //Base64 decode:
             byte[] byteSecret = Convert.FromBase64String(aSecret);
             //Decrypt:
@@ -147,28 +166,28 @@ namespace ConsoleApp1
             // Public key file
             const string PubKeyFile = @"c:\CoMeta\encrypt\rsaPublicKey.txt";
 
-            
+
             // Key container name for
             // private/public key value pair.
             const string keyName = "Key02";
             // Stores a key pair in the key container.
             cspp.KeyContainerName = keyName;
-            
-            
+
+
             rsa = new RSACryptoServiceProvider(cspp);
             rsa.PersistKeyInCsp = true;
             string strKey = "";
-            
+
             if (rsa.PublicOnly == true)
                 strKey = "Key: " + cspp.KeyContainerName + " - Public Only";
             else
                 strKey = "Key: " + cspp.KeyContainerName + " - Full Key Pair";
 
             Console.Out.WriteLine(strKey);
-       
+
             byte[] privKey = rsa.ExportRSAPrivateKey();
             byte[] pubKey = rsa.ExportRSAPublicKey();
-            
+
             Console.WriteLine("Priv key: " + BitConverter.ToString(privKey));
             Console.WriteLine("Pub  key: " + BitConverter.ToString(pubKey));
 
@@ -187,7 +206,7 @@ namespace ConsoleApp1
             cspp = new CspParameters();
             cspp.KeyContainerName = keyName;
             rsa = new RSACryptoServiceProvider(cspp);
-            
+
             byte[] clearBytes = rsa.Decrypt(enccryptedBytes, RSAEncryptionPadding.Pkcs1);
             string clear = Encoding.UTF8.GetString(clearBytes);
             Console.WriteLine("Decrypted data (With key container):");
@@ -216,24 +235,24 @@ namespace ConsoleApp1
             byte[] salt = CreateRandomSalt(512 / 8);
 
             // Create a TripleDESCryptoServiceProvider object.
-            //TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
-            AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
-            
+            TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
+            //AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
+
             try
             {
                 Console.WriteLine("Creating a key with PasswordDeriveBytes...");
 
                 // Create a PasswordDeriveBytes object and then create
                 // a TripleDES key from the password and salt.
-                //PasswordDeriveBytes pdb = new PasswordDeriveBytes(pwd, salt);
+                PasswordDeriveBytes pdb = new PasswordDeriveBytes(pwd, salt);
                 // Create the key and set it to the Key property
                 // of the TripleDESCryptoServiceProvider object.
-                //tdes.Key = pdb.CryptDeriveKey("TripleDES", "SHA512", 0, tdes.IV);
-                
+                tdes.Key = pdb.CryptDeriveKey("TripleDES", "SHA512", 0, tdes.IV);
+
                 Console.WriteLine("Operation complete.");
                 byte[] encrypted;
 
-                ICryptoTransform encryptor = aes.CreateEncryptor();
+                ICryptoTransform encryptor = tdes.CreateEncryptor();
                 // Create the streams used for encryption.
                 using (MemoryStream msEncrypt = new MemoryStream())
                 {
@@ -250,12 +269,12 @@ namespace ConsoleApp1
                 }
 
 
-                string encryptedText = BitConverter.ToString(encrypted);
+                string encryptedText = Convert.ToBase64String(encrypted);
                 Console.WriteLine("Encrypted: " + encryptedText);
 
                 string clearText;
                 //Decryption
-                ICryptoTransform decrypter = aes.CreateDecryptor();
+                ICryptoTransform decrypter = tdes.CreateDecryptor();
                 using (MemoryStream msDecrypt = new MemoryStream(encrypted)) //Remember that encrypted is a byte[]
                 {
                     using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decrypter, CryptoStreamMode.Read))
@@ -266,7 +285,7 @@ namespace ConsoleApp1
                         }
                     }
                 }
-                
+
                 Console.WriteLine("Decrypted: " + clearText);
             }
             catch (Exception e)
@@ -280,9 +299,8 @@ namespace ConsoleApp1
                 ClearBytes(salt);
 
                 // Clear the key.
-                //tdes.Clear();
-                aes.Clear();
-                
+                tdes.Clear();
+                //aes.Clear();
             }
 
             Console.ReadLine();

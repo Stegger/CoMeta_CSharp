@@ -61,9 +61,10 @@ namespace ConsoleApp1
                     }
 
                     encrypted = msEncrypt.ToArray();
+                    msEncrypt.Flush();
                 }
             }
-
+            
             return encrypted;
         }
 
