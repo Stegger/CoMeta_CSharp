@@ -11,15 +11,43 @@ namespace ConsoleApp1
     {
         private static AuthenticationHelper helper;
 
+        public Program()
+        {
+        }
+
         static void Main(string[] args)
         {
             
+            //FunWithAESandKeys();
             //PlayingWithMyRSAEncryptionService();
             //playingWithMyAESService();
             //HashPasswordExample("P@$$WORD");
             //funWithTokens();
-            //funWithEncryption("Hi Bob, it's Alice (h)");
+            funWithEncryption("Hi Bob, it's Alice (h)");
             //FunWithAsyncEncryption();
+        }
+
+        private static void FunWithAESandKeys()
+        {
+            PasswordToKeyService keyService = new PasswordToKeyService();
+
+            String password = "Password 123"; //This is User generated Input (Should never be stored)!
+            //The salt is created at User Registration and is stored on the server:
+            byte[] salt;
+            byte[] key = keyService.GetKey(password, out salt, 256);
+
+            Console.WriteLine("Key: " + Convert.ToBase64String(key));
+            Console.WriteLine("Salt: " + Convert.ToBase64String(salt));
+
+            byte[] iv = Convert.FromBase64String("7y7+++u7pV5aIOxJfPCLFA==");
+
+            MyAESEncryptionService aesEncryptionService = new MyAESEncryptionService(key, iv);
+
+            String secretText = "Hello world";
+
+            byte[] result = aesEncryptionService.EncryptMessage(secretText);
+
+            Console.WriteLine("Enc text: " + Convert.ToBase64String(result));
         }
 
         private static void PlayingWithMyRSAEncryptionService()

@@ -26,6 +26,15 @@ namespace ConsoleApp1
             _aes.IV = _iv;
         }
 
+        public MyAESEncryptionService(byte[] key, out byte[] iv)
+        {
+            _key = key;
+            _aes = new AesCryptoServiceProvider();
+            _aes.Key = _key;
+            _aes.GenerateIV();
+            _iv = iv = _aes.IV;
+        }
+        
         public MyAESEncryptionService(byte[] key, byte[] iv)
         {
             _key = key;
