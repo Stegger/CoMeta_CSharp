@@ -17,14 +17,14 @@ namespace ConsoleApp1
 
         static void Main(string[] args)
         {
-            WorkingBackwards();
+            //WorkingBackwards();
             //FunWithAESandKeys();
             //PlayingWithMyRSAEncryptionService();
             //playingWithMyAESService();
             //HashPasswordExample("P@$$WORD");
             //funWithTokens();
             //funWithEncryption("Hi Bob, it's Alice (h)");
-            //FunWithAsyncEncryption();
+            FunWithAsyncEncryption();
         }
 
         private static void FunWithAESandKeys()
@@ -55,18 +55,28 @@ namespace ConsoleApp1
 
         public static void WorkingBackwards()
         {
-            string password = "Password123";
-            string salt = "8Eye+X/wPcdTUOhOr2hCbKfPeLnVGAJNzNZKMoLYLD2pGIC4BfADlNMkh0B41JqQG3LTYxIgzfLwGYOjN1+Wkg7Bpm4uwx2eBw7aFUQ8vpx1rQp40FTLwsCTbq2XOmGhgcTl+5lVhkHQrweEYsrzfn5lVY7bOEQcjc480iq1a+BLUn5Mwji2XSwql7FlAxGWzkGXVl9Gq0eREIcSOggzZAe5dK09nUmfAZJ5Wq5h9jOItk3v7l5YE0jEDZByn4flzF0Ub8cYRpso3dG2UeT+/zfBddhkYv2Fx/ZTohAWP1i7jGDYFrctjpAJBHxfd6y8azdrfJ+kHvZ7eLSU1LHz0Q==";
-            //Above will generate the key ^
+            string password = "ILuvSecurity"; //This is user provided!
+            //The salt should be stored server side:
+            string salt = "NaAkv/uWGhca5rC9XskUColQaRxEGxM7rc6W2UvoS6s+kiL/mT5YQnjwO41wF6BwseGI7bHDelqhsM1l7sRHhCsLGWheg2pcxlQFv5hnJo9QcWZU7tnyluNPi++rfuqstwPwq6Q45/5SJM3G+2uHG3VH3mGZP5gEnZous75+FQuFtxdB8NEYfRGyKOgBooshLuAVBbG/FPf94teANyVe8XmU4qS0FcnFReprAx3ICZ6iRhFRyT7uCM+Q7ZaLWvHcNaTrTKJ3Hkd7SadGqsd492IXu/2DQj538p3uszUR7XLoraG712ePp8CUYvilGh2VYjTdUj4ahKX6tKUct793Nw==";
+                          //Above lines will be used to generate the key ^
             byte[] key = new PasswordToKeyService().GetKey(password, Convert.FromBase64String(salt), 256);
             
-            string iv = "wfLfqUKDlZGQ90Rhl7zv/w==";
+            string iv = "7y7+++u7pV5aIOxJfPCLFA==";
             MyAESEncryptionService encryptionService = new MyAESEncryptionService(key, Convert.FromBase64String(iv));
             
-            string encryptedText = "wGMoD04DsIFA9fWzRmIDihNeEx4qy6UacEG/+KCcub0=";
+            //Encryption
+            string message = "CDS Security is the best course, right?";
+            byte[] secretBytes = encryptionService.EncryptMessage(message);
+            string secretMessage = Convert.ToBase64String(secretBytes);
+            Console.WriteLine("Secret: " + secretMessage);
+            
+            
+            //Decryption
+            string encryptedText = "F0AXDkvxp5ytNuJz5e4IqeO7ZCLQ0mSZDaxXQeRQWso=";
             byte[] byteEncryptedText = Convert.FromBase64String(encryptedText);
             string clearText = encryptionService.DecryptMessage(byteEncryptedText);
             Console.WriteLine("The message is: " + clearText);
+            
         }
         
         private static void PlayingWithMyRSAEncryptionService()
@@ -75,10 +85,10 @@ namespace ConsoleApp1
 
             string alicesPublicKey = encryptionServiceAlice.GetPublicRsaParameters();
             Console.WriteLine("Alice public key: " + alicesPublicKey);
-
+            Console.WriteLine();
             string alicesPublicAndPrivateKey = encryptionServiceAlice.GetPublicAndPrivateRsaParameters();
             Console.WriteLine("Alices public and private key: " + alicesPublicAndPrivateKey);
-
+            Console.WriteLine();
             MyRSAEncryptionService encryptionServiceBob = new MyRSAEncryptionService(alicesPublicKey);
 
             string bobsMessageToAlice = "Hi Alice. I think you are really nice";
@@ -169,7 +179,7 @@ namespace ConsoleApp1
 
             // Key container name for
             // private/public key value pair.
-            const string keyName = "Key02";
+            const string keyName = "Key03";
             // Stores a key pair in the key container.
             cspp.KeyContainerName = keyName;
 
@@ -212,6 +222,7 @@ namespace ConsoleApp1
             Console.WriteLine("Decrypted data (With key container):");
             Console.WriteLine(clear);
 
+            
             rsa = new RSACryptoServiceProvider();
             int bytesRead;
             rsa.ImportRSAPublicKey(pubKey, out bytesRead);
