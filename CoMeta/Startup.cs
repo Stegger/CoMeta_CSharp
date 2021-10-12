@@ -76,6 +76,12 @@ namespace CoMeta
             //The SINGLETON is to ensure that we are using the same authenticator, with the same SECRET:
             services.AddSingleton<IAuthenticationHelper>(new AuthenticationHelper(secretBytes));
 
+            //Below will setup CORS for the application. 
+            //BEWARE that the current setup allows any origin, method and header. AKA an "Open door" policy... 
+            services.AddCors(options =>
+                options.AddDefaultPolicy(builder =>
+                    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+            
             services.AddControllers();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "CoMeta", Version = "v1" }); });
         }
