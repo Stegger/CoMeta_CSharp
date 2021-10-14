@@ -1,22 +1,20 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CoMeta.Data;
-using CoMeta.Helpers;
 using CoMeta.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MySecurity.Authentication;
+using MySecurity.Authorization;
+using MySecurity.Data;
+using UserRepository = MySecurity.Data.UserRepository;
 
 namespace CoMeta
 {
@@ -46,7 +44,7 @@ namespace CoMeta
             {
                 rngCsp.GetBytes(secretBytes);
             }
-            
+
             //Add JWT authentication
             //The settings below match the settings when we create our TOKEN:
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
@@ -64,24 +62,42 @@ namespace CoMeta
                 };
             });
 
-            services.AddDbContext<CoMetaContext>(opt => opt.UseInMemoryDatabase("CoMetaList"));
+            //Startup the "Entity" DBContext (PetShop, or Movies or whatever the Core is:
+            services.AddDbContext<CoMetaContext>(
+                opt => opt.UseInMemoryDatabase("CoMetaList")
+            );
             services.AddTransient<IDbInitializer, InMemoryInitializer>();
 
-            services.AddScoped<IRepository<User>, UserRepository>();
-            services.AddScoped<IRepository<Message>, MessageRepository>();
-            services.AddScoped<IRepository<Role>, RoleRepository>();
+            //I create a separate context for my security plugin: 
+            services.AddDbContext<SecurityContext>(opt => opt.UseInMemoryDatabase("Security"));
+            services.AddTransient<ISecurityContextInitializer, SecurityMemoryInitializer>();
 
+            services.AddScoped<UserRepository>();
+            services.AddScoped<IRepository<Message>, MessageRepository>();
+
+            //I activate my special policies:
+            services.AddAuthorization(opt =>
+            {
+                opt.AddPolicy("OwnerPolicy", policy =>
+                {
+                    policy.Requirements.Add(new ResourceOwnerRequirement());
+                });
+            });
+            services.AddSingleton<IAuthorizationHandler, UserResourceOwnerAuthorizationService>(); //Adding the handler for the "OwnerPolicy"
+            
             //I add the Authentication helper as a SINGLETON that uses the SECRET symmetric key:
             //The key is used for digitally signing the JWT tokens - keeping them secure from tampering
             //The SINGLETON is to ensure that we are using the same authenticator, with the same SECRET:
             services.AddSingleton<IAuthenticationHelper>(new AuthenticationHelper(secretBytes));
 
+            services.AddScoped<IUserAuthenticator, UserAuthenticator>();
+            
             //Below will setup CORS for the application. 
             //BEWARE that the current setup allows any origin, method and header. AKA an "Open door" policy... 
             services.AddCors(options =>
                 options.AddDefaultPolicy(builder =>
                     builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
-            
+
             services.AddControllers();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "CoMeta", Version = "v1" }); });
         }
@@ -97,8 +113,11 @@ namespace CoMeta
                 var dbContext = services.GetService<CoMetaContext>();
                 var dbInitializer = services.GetService<IDbInitializer>();
                 dbInitializer.Initialize(dbContext);
+                var secContext = services.GetService<SecurityContext>();
+                var dbSecInit = services.GetService<ISecurityContextInitializer>();
+                dbSecInit.Initialize(secContext);
             }
-            
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

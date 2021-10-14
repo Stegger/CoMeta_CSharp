@@ -1,16 +1,20 @@
 ﻿using System;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using CoMeta.Models;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using MySecurity.Data;
+using MySecurity.Entities;
 
-namespace CoMeta.Helpers
+namespace MySecurity.Authentication
 {
     public class AuthenticationHelper : IAuthenticationHelper
     {
         private byte[] secretBytes;
 
+        private UserRepository _userRepository;
+        
         public AuthenticationHelper(Byte[] secret)
         {
             secretBytes = secret;
@@ -37,6 +41,7 @@ namespace CoMeta.Helpers
                     if (computedHash[i] != storedHash[i]) return false;
                 }
             }
+
             return true;
         }
 
@@ -48,12 +53,12 @@ namespace CoMeta.Helpers
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Sid, user.Id.ToString())
             };
-            
+
             //I add all of the User's roles as Claims to the token:
-            
-            
+
+
             claims.Add(new Claim(ClaimTypes.Role, user.Role));
-            
+
 
             var token = new JwtSecurityToken(
                 new JwtHeader(new SigningCredentials(
@@ -64,8 +69,9 @@ namespace CoMeta.Helpers
                     claims.ToArray(),
                     DateTime.Now, // notBefore
                     DateTime.Now.AddMinutes(10))); // expires
-            
+
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+        
     }
 }

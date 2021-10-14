@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace CoMeta.Models
+﻿namespace MySecurity.Entities
 {
     public class User
     {
@@ -9,5 +7,6 @@ namespace CoMeta.Models
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
         public string Role { get; set; }
+        //TODO Add public RSA key
     }
 }

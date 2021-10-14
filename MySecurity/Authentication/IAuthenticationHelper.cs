@@ -1,6 +1,8 @@
-﻿using CoMeta.Models;
+﻿using System.Collections.Generic;
+using MySecurity.Data;
+using MySecurity.Entities;
 
-namespace CoMeta.Helpers
+namespace MySecurity.Authentication
 {
     public interface IAuthenticationHelper
     {
@@ -20,12 +22,15 @@ namespace CoMeta.Helpers
         /// <param name="storedSalt">The salt to use</param>
         /// <returns>True if the hash and password+salt matches, false otherwise</returns>
         bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt);
-        
+
         /// <summary>
         /// Generate a fresh token for the user to use
         /// </summary>
         /// <param name="user">The user requesting a token</param>
         /// <returns>The token for the user</returns>
         string GenerateToken(User user);
+
+
+        
     }
 }

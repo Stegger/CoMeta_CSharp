@@ -19,14 +19,16 @@ namespace CoMeta.Controllers
     public class MessageController : ControllerBase
     {
         private readonly CoMetaContext _context;
+        private readonly IAuthorizationService _authorizationService;
 
-        public MessageController(CoMetaContext context)
+        public MessageController(CoMetaContext context, IAuthorizationService authorizationService)
         {
             _context = context;
+            _authorizationService = authorizationService;
         }
 
         // GET: api/Message
-        [Authorize(Roles = "Administrator")]
+        [AllowAnonymous] //For debugging purpose only. Should require admin role!
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Message>>> GetMessages()
         {
@@ -43,18 +45,20 @@ namespace CoMeta.Controllers
             {
                 return NotFound();
             }
-            
-            string userName = HttpContext.User.Identity.Name;
-            
-            Debug.WriteLine(HttpContext);
-            
-            //The user is not allowed to access messages they dit not send or receive:
-            // if (message.Sender.Username != userName || message.Receiver.Username != userName)
-            // {
-            //     return Forbid();
-            // }
-            
-            return message;
+
+            var authorizationResult = await _authorizationService.AuthorizeAsync(User, message, "OwnerPolicy");
+            if(authorizationResult.Succeeded)
+            {
+                return message;
+            }
+            else if (User.Identity.IsAuthenticated)
+            {
+                return new ForbidResult();
+            }
+            else
+            {
+                return new ChallengeResult();
+            }
         }
 
         // PUT: api/Message/5
@@ -89,19 +93,13 @@ namespace CoMeta.Controllers
 
         // POST: api/Message
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [Authorize]
+        [AllowAnonymous]
         [HttpPost]
         public async Task<ActionResult<Message>> PostMessage([FromBody] Message message)
         {
-            var userName = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-
-            /*if (!message.Sender.Username.Equals(userName))
-                */
-            //    return Forbid();
-            
             _context.Messages.Add(message);
             await _context.SaveChangesAsync();
-
+            
             return CreatedAtAction("GetMessage", new { id = message.Id }, message);
         }
 

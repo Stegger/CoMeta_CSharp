@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using CoMeta.Helpers;
+using MySecurity.Authentication;
 
 namespace ConsoleApp1
 {
