@@ -21,6 +21,7 @@ namespace MySecurity.Authentication
         bool Login(string username, string password, out string token);
 
         bool CreateUser(string username, string password);
+        
     }
 
     public class UserAuthenticator : IUserAuthenticator

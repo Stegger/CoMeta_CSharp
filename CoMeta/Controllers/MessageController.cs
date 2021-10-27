@@ -45,15 +45,11 @@ namespace CoMeta.Controllers
             {
                 return NotFound();
             }
-
+            
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, message, "OwnerPolicy");
             if(authorizationResult.Succeeded)
             {
                 return message;
-            }
-            else if (User.Identity.IsAuthenticated)
-            {
-                return new ForbidResult();
             }
             else
             {

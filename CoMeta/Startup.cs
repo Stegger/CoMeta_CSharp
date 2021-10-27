@@ -63,35 +63,31 @@ namespace CoMeta
             });
 
             //Startup the "Entity" DBContext (PetShop, or Movies or whatever the Core is:
-            services.AddDbContext<CoMetaContext>(
-                opt => opt.UseInMemoryDatabase("CoMetaList")
-            );
+            services.AddDbContext<CoMetaContext>(opt => opt.UseInMemoryDatabase("CoMetaList"));
             services.AddTransient<IDbInitializer, InMemoryInitializer>();
+            services.AddScoped<IRepository<Message>, MessageRepository>();
 
             //I create a separate context for my security plugin: 
             services.AddDbContext<SecurityContext>(opt => opt.UseInMemoryDatabase("Security"));
             services.AddTransient<ISecurityContextInitializer, SecurityMemoryInitializer>();
-
             services.AddScoped<UserRepository>();
-            services.AddScoped<IRepository<Message>, MessageRepository>();
 
             //I activate my special policies:
             services.AddAuthorization(opt =>
             {
-                opt.AddPolicy("OwnerPolicy", policy =>
-                {
-                    policy.Requirements.Add(new ResourceOwnerRequirement());
-                });
+                opt.AddPolicy("OwnerPolicy",
+                    policy => { policy.Requirements.Add(new ResourceOwnerRequirement()); });
             });
-            services.AddSingleton<IAuthorizationHandler, UserResourceOwnerAuthorizationService>(); //Adding the handler for the "OwnerPolicy"
-            
+            services
+                .AddSingleton<IAuthorizationHandler,
+                    UserResourceOwnerAuthorizationService>(); //Adding the handler for the "OwnerPolicy"
+
             //I add the Authentication helper as a SINGLETON that uses the SECRET symmetric key:
             //The key is used for digitally signing the JWT tokens - keeping them secure from tampering
             //The SINGLETON is to ensure that we are using the same authenticator, with the same SECRET:
             services.AddSingleton<IAuthenticationHelper>(new AuthenticationHelper(secretBytes));
-
             services.AddScoped<IUserAuthenticator, UserAuthenticator>();
-            
+
             //Below will setup CORS for the application. 
             //BEWARE that the current setup allows any origin, method and header. AKA an "Open door" policy... 
             services.AddCors(options =>
@@ -133,6 +129,8 @@ namespace CoMeta
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseCors();
+            
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }
