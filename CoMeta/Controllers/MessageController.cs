@@ -95,6 +95,8 @@ namespace CoMeta.Controllers
         {
             _context.Messages.Add(message);
             await _context.SaveChangesAsync();
+
+            string sid = User.Claims.FirstOrDefault(type => type.Type.Equals(ClaimTypes.Sid)).Value;
             
             return CreatedAtAction("GetMessage", new { id = message.Id }, message);
         }
