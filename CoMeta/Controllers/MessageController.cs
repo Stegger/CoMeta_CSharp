@@ -28,7 +28,7 @@ namespace CoMeta.Controllers
         }
 
         // GET: api/Message
-        [AllowAnonymous] //For debugging purpose only. Should require admin role!
+        //For debugging purpose only. Should require admin role!
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Message>>> GetMessages()
         {
@@ -36,7 +36,7 @@ namespace CoMeta.Controllers
         }
 
         // GET: api/Message/5
-        [Authorize]
+        [Authorize(Roles = "Administrator")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Message>> GetMessage(long id)
         {
@@ -45,9 +45,9 @@ namespace CoMeta.Controllers
             {
                 return NotFound();
             }
-            
+
             var authorizationResult = await _authorizationService.AuthorizeAsync(User, message, "OwnerPolicy");
-            if(authorizationResult.Succeeded)
+            if (authorizationResult.Succeeded)
             {
                 return message;
             }
@@ -68,7 +68,7 @@ namespace CoMeta.Controllers
             }
 
             _context.Entry(message).State = EntityState.Modified;
-            
+
             try
             {
                 await _context.SaveChangesAsync();
@@ -84,12 +84,12 @@ namespace CoMeta.Controllers
                     throw;
                 }
             }
+
             return NoContent();
         }
 
         // POST: api/Message
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [AllowAnonymous]
         [HttpPost]
         public async Task<ActionResult<Message>> PostMessage([FromBody] Message message)
         {
@@ -97,7 +97,7 @@ namespace CoMeta.Controllers
             await _context.SaveChangesAsync();
 
             string sid = User.Claims.FirstOrDefault(type => type.Type.Equals(ClaimTypes.Sid)).Value;
-            
+
             return CreatedAtAction("GetMessage", new { id = message.Id }, message);
         }
 
