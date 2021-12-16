@@ -120,9 +120,15 @@ namespace CoMeta
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CoMeta v1"));
             }
-
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+            }
+            
+            
             app.UseHttpsRedirection();
 
+            
             app.UseRouting();
 
             //UseAuthentication must be called AFTER UseRouting, and BEFORE UseEndpoints:
